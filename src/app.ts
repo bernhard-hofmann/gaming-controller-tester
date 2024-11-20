@@ -102,8 +102,6 @@ function updateControllerState(gamepad: Gamepad): void {
             }
         }
         // set translate x and y pairs for each stick. Array values come in pairs, first the first 2 then the other 2 and so on
-
-        
     });    
 }
 
@@ -172,7 +170,7 @@ function stop(): void {
 
 function resetDOM(): void {
     controllerName.textContent = 'No controller connected';
-    controllerDisplay.innerHTML = '';
+    controllerDisplay.innerHTML = 'Please connect your bluetooth controller!';
     document.querySelector('.svg-container').innerHTML = '';
     document.querySelector('.vibrate-button')?.remove();
 }
