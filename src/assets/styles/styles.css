@@ -1,0 +1,52 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+}
+
+#controller-info {
+    text-align: center;
+}
+
+#controller-display {
+    margin-top: 20px;
+}
+
+.controller-button {
+    display: block;
+}
+
+.button-pressed {
+    background-color: yellow;
+}
+
+.button.active, .button.active{
+    fill: yellow!important;
+}
+
+/* animations */
+/* vibrate animation */
+@keyframes vibrate {
+    0% {
+        transform: translate(0, 0);
+    }
+    20% {
+        transform: translate(2px, 2px);
+    }
+    40% {
+        transform: translate(-2px, -2px);
+    }
+    60% {
+        transform: translate(2px, 2px);
+    }
+    80% {
+        transform: translate(-2px, -2px);
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
