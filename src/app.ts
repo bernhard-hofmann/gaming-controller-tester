@@ -1,181 +1,217 @@
 import { ControllerMapping, buttonSvgClasses, controllerMappings } from "./controller-mappings";
 import { SvgService } from "./services/svg.service";
 
-const controllerDisplay = document.getElementById('controller-display')!;
-const controllerName = document.getElementById('controller-name')!;
-
-let currentController: ControllerMapping | null = null;
-
-function detectController(gamepad: Gamepad): void {    
-    if (gamepad.id.includes('Xbox')) {
-        currentController = controllerMappings['Xbox'];
-    } else if (gamepad.id.includes('PLAYSTATION(R)3')) {
-        currentController = controllerMappings['PS3'];
-    } else if (gamepad.id.includes('Wireless Controller')) {
-        currentController = controllerMappings['PS4'];
-    } else if (gamepad.id.includes('DualSense Wireless Controller')) {
-        currentController = controllerMappings['PS5'];
-    } else if (gamepad.id.includes('Joy-Con (L)')) {
-        currentController = controllerMappings['JoyConL'];
-    } else if (gamepad.id.includes('Joy-Con (R)')) {
-        currentController = controllerMappings['JoyConR'];
-    } else if (gamepad.id.includes('Joy-Con L+R')) {
-        currentController = controllerMappings['JoyConLR'];
-    } else currentController = null;
-
-    if (currentController) {
-        controllerName.textContent = currentController.name;
-        renderControllerDisplay(currentController);
-    } else controllerName.textContent = 'Unknown Controller'; 
+interface GamepadState {
+  currentController: ControllerMapping | null;
+  lastTimestamp: number;
 }
 
-async function renderControllerDisplay(controller: ControllerMapping): Promise<void> {
-    controllerDisplay.innerHTML = '';
+class GamepadController {
+  private static readonly FPS = 30;
+  private static readonly DEFAULT_VIBRATION_DURATION = 100;
+  private static readonly DEFAULT_VIBRATION_MAGNITUDE = 1;
+  
+  private readonly state: GamepadState = {
+    currentController: null,
+    lastTimestamp: 0
+  };
+  
+  private readonly elements = {
+    display: document.getElementById('controller-display') as HTMLElement,
+    name: document.getElementById('controller-name') as HTMLElement,
+    svgContainer: document.querySelector('.svg-container') as HTMLElement
+  };
 
-    // buttons
-    controller.buttons.forEach(button => {
-        const labelElement = document.createElement('label');
-        labelElement.className = 'controller-button';
-        labelElement.id = button;
-        labelElement.textContent = button;
-        controllerDisplay.appendChild(labelElement);
-    });
+  constructor() {
+    this.bindEventListeners();
+  }
 
-    // axes
-    controller.axes.forEach(axis => {        
-        const axisElement = document.createElement('div');
-        axisElement.className = 'controller-axis';
-        axisElement.id = axis;
-        axisElement.textContent = axis;
-        controllerDisplay.appendChild(axisElement);
-    });
+  private bindEventListeners(): void {
+    window.addEventListener('gamepadconnected', this.handleGamepadConnect.bind(this));
+    window.addEventListener('gamepaddisconnected', this.handleGamepadDisconnect.bind(this));
+    window.addEventListener('beforeunload', this.cleanup.bind(this));
+    window.addEventListener('unload', this.cleanup.bind(this));
+  }
 
-    // svg
-    if (controller.svg) {
-        const svgElement = await SvgService.getByUrl(`./assets/svg/${controller.svg}`);
-        const svgContainer = document.querySelector('.svg-container');
-        if (svgContainer && svgElement) {
-            svgContainer.innerHTML = '';
-            svgContainer.appendChild(svgElement);
-        }
+  private handleGamepadConnect(event: GamepadEvent): void {
+    const { gamepad } = event;
+    if (!gamepad) return;
+
+    this.detectController(gamepad);
+    this.initializeVibration(gamepad);
+    requestAnimationFrame(this.gameLoop.bind(this));
+  }
+
+  private handleGamepadDisconnect(): void {
+    this.cleanup();
+  }
+
+  private detectController(gamepad: Gamepad): void {
+    const controllerMap = new Map([
+      ['Xbox', (id: string) => id.includes('Xbox')],
+      ['PS3', (id: string) => id.includes('PLAYSTATION(R)3')],
+      ['PS4', (id: string) => id.includes('Wireless Controller')],
+      ['PS5', (id: string) => id.includes('DualSense Wireless Controller')],
+      ['JoyConL', (id: string) => id.includes('Joy-Con (L)')],
+      ['JoyConR', (id: string) => id.includes('Joy-Con (R)')],
+      ['JoyConLR', (id: string) => id.includes('Joy-Con L+R')]
+    ]);
+
+    for (const [key, predicate] of controllerMap) {
+      if (predicate(gamepad.id)) {
+        this.state.currentController = controllerMappings[key];
+        break;
+      }
     }
-}
 
-function triggerImageButton(button: string) {
-    document.querySelector(`.button.${buttonSvgClasses[button]}`)?.classList.add('active');
-}
+    this.updateControllerDisplay();
+  }
 
-function releaseImageButton(button: string) {
-    document.querySelector(`.button.${buttonSvgClasses[button]}`)?.classList.remove('active');
-}
+  private async updateControllerDisplay(): Promise<void> {
+    const { currentController } = this.state;
+    this.elements.name.textContent = currentController?.name ?? 'Unknown Controller';
+    
+    if (!currentController) return;
 
-function updateControllerState(gamepad: Gamepad): void {    
+    this.elements.display.innerHTML = '';
+    await this.renderButtons(currentController);
+    await this.renderAxes(currentController);
+    await this.renderControllerSvg(currentController);
+  }
+
+  private async renderButtons(controller: ControllerMapping): Promise<void> {
+    controller.buttons.forEach(button => {
+      const labelElement = document.createElement('label');
+      Object.assign(labelElement, {
+        className: 'controller-button',
+        id: button,
+        textContent: button
+      });
+      this.elements.display.appendChild(labelElement);
+    });
+  }
+
+  private async renderAxes(controller: ControllerMapping): Promise<void> {
+    controller.axes?.forEach(axis => {
+      const axisElement = document.createElement('div');
+      Object.assign(axisElement, {
+        className: 'controller-axis',
+        id: axis,
+        textContent: axis
+      });
+      this.elements.display.appendChild(axisElement);
+    });
+  }
+
+  private async renderControllerSvg(controller: ControllerMapping): Promise<void> {
+    if (!controller.svg) return;
+
+    try {
+      const svgElement = await SvgService.getByUrl(`./assets/svg/${controller.svg}`);
+      if (svgElement) {
+        this.elements.svgContainer.innerHTML = '';
+        this.elements.svgContainer.appendChild(svgElement);
+      }
+    } catch (error) {
+      console.error('Failed to load controller SVG:', error);
+    }
+  }
+
+  private updateButtonState(gamepad: Gamepad): void {
+    const { currentController } = this.state;
     if (!currentController) return;
 
     currentController.buttons.forEach((button, index) => {
-        const buttonElement = document.getElementById(button);
-        if (buttonElement) {
-            // THIS IS WHERE THE MAGIC HAPPENS
-            if (gamepad.buttons[index].pressed) {
-                triggerImageButton(button);
-                buttonElement.classList.add('button-pressed');
-            } else {
-                releaseImageButton(button);
-                buttonElement.classList.remove('button-pressed');
-            }
+      const buttonElement = document.getElementById(button);
+      const buttonState = gamepad.buttons[index]?.pressed;
+      
+      if (buttonElement && typeof buttonState === 'boolean') {
+        const svgButton = document.querySelector(`.button.${buttonSvgClasses[button]}`);
+        buttonElement.classList.toggle('button-pressed', buttonState);
+        svgButton?.classList.toggle('active', buttonState);
+      }
+    });
+  }
+
+  private updateAxisState(gamepad: Gamepad): void {
+    const { currentController } = this.state;
+    if (!currentController) return;
+
+    currentController.axes?.forEach((axis, index) => {
+      const axisElement = document.getElementById(axis);
+      if (axisElement) {
+        axisElement.textContent = `${axis}: ${gamepad.axes[index]?.toFixed(2) ?? 0}`;
+      }
+
+      if (index % 2 === 0) {
+        const stick = document.querySelector(`.${buttonSvgClasses[axis]}`) as HTMLElement;
+        if (stick) {
+          const x = gamepad.axes[index] ?? 0;
+          const y = gamepad.axes[index + 1] ?? 0;
+          stick.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
         }
+      }
+    });
+  }
+
+  private gameLoop(timestamp: number): void {
+    if ((timestamp - this.state.lastTimestamp) < (1000 / GamepadController.FPS)) {
+      requestAnimationFrame(this.gameLoop.bind(this));
+      return;
+    }
+
+    const gamepad = navigator.getGamepads().find(Boolean);
+    if (gamepad) {
+      if (!this.state.currentController) {
+        this.detectController(gamepad);
+      }
+      this.updateButtonState(gamepad);
+      this.updateAxisState(gamepad);
+    }
+
+    this.state.lastTimestamp = timestamp;
+    requestAnimationFrame(this.gameLoop.bind(this));
+  }
+
+  private initializeVibration(gamepad: Gamepad): void {
+    if (!gamepad.vibrationActuator) return;
+
+    const existingButton = document.querySelector('.vibrate-button');
+    existingButton?.remove();
+
+    const vibrateButton = document.createElement('button');
+    Object.assign(vibrateButton, {
+      className: 'vibrate-button',
+      textContent: 'Vibrate'
     });
 
-    currentController.axes.forEach((axis, index) => {
-        const axisElement = document.getElementById(axis);
-        if (axisElement) {
-            axisElement.textContent = `${axis}: ${gamepad.axes[index].toFixed(2)}`;
-        }
-
-        // we need them in pairs
-        if(index % 2 === 0) {
-            const x = gamepad.axes[index];
-            const y = gamepad.axes[index + 1];
-            const stick = document.querySelector(`.${buttonSvgClasses[axis]}`) as HTMLElement;
-            if(stick) {
-                stick.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
-            }
-        }
-        // set translate x and y pairs for each stick. Array values come in pairs, first the first 2 then the other 2 and so on
-    });    
-}
-
-let lastTimestamp = 0;
-
-function gameLoop(t: number): void {
-    const FPS: number = 30;
-
-    if ((t - lastTimestamp) < (1000 / FPS)) {
-        requestAnimationFrame(gameLoop);
-        return;
-    }
-
-    const gamepads = navigator.getGamepads();
-    const gamepad = gamepads.find((gamepad) => !!gamepad);    
-
-    if (gamepad) {
-        if (!currentController) detectController(gamepad);
-        updateControllerState(gamepad);        
-    }
-
-    lastTimestamp = t;
-    requestAnimationFrame(gameLoop);
-}
-
-function initVibration(gamepad: Gamepad): void {
-    const vibrationActuator = gamepad.vibrationActuator;
-    if(!vibrationActuator) return;
-    vibrate(100);
-    const existedVibrateButton = document.querySelector('.vibrate-button');
-    if(existedVibrateButton) existedVibrateButton.remove();
-    const vibrateButton = document.createElement('button');
-    vibrateButton.className = 'vibrate-button';
-    vibrateButton.textContent = 'Vibrate';
+    vibrateButton.addEventListener('click', () => 
+      this.vibrate(GamepadController.DEFAULT_VIBRATION_DURATION)
+    );
+    
     document.body.appendChild(vibrateButton);
-    vibrateButton.addEventListener('click', () => vibrate(100));
-}
+    this.vibrate(GamepadController.DEFAULT_VIBRATION_DURATION);
+  }
 
-function vibrate(duration: number = 100, magnitude = 1): void {
-    if(!currentController) return;
-    const gamepads = navigator.getGamepads();
-    const gamepad = gamepads.find((gamepad) => !!gamepad);
+  private vibrate(duration = GamepadController.DEFAULT_VIBRATION_DURATION, 
+                 magnitude = GamepadController.DEFAULT_VIBRATION_MAGNITUDE): void {
+    const gamepad = navigator.getGamepads().find(Boolean);
+    const actuator = gamepad?.vibrationActuator;
 
-    if (gamepad && gamepad.vibrationActuator) {
-        const vibrationActuator = gamepad.vibrationActuator;
-        vibrationActuator?.playEffect('dual-rumble', {
-            duration,
-            strongMagnitude: magnitude,
-            weakMagnitude: magnitude
-        });
-    }
-}
+    actuator?.playEffect('dual-rumble', {
+      duration,
+      strongMagnitude: magnitude,
+      weakMagnitude: magnitude
+    });
+  }
 
-function start(event: GamepadEvent): void {
-    if(!event.gamepad) return;
-    console.log('Gamepad connected:', event.gamepad);
-    detectController(event.gamepad);
-    if(event.gamepad.vibrationActuator) initVibration(event.gamepad);
-    requestAnimationFrame(gameLoop);
-}
-
-function stop(): void {
-    currentController = null;
-    resetDOM();
-}
-
-function resetDOM(): void {
-    controllerName.textContent = 'No controller connected';
-    controllerDisplay.innerHTML = 'Please connect your bluetooth controller!';
-    document.querySelector('.svg-container').innerHTML = '';
+  private cleanup(): void {
+    this.state.currentController = null;
+    this.elements.name.textContent = 'No controller connected';
+    this.elements.display.innerHTML = 'Please connect your bluetooth controller!';
+    this.elements.svgContainer.innerHTML = '';
     document.querySelector('.vibrate-button')?.remove();
+  }
 }
 
-window.addEventListener('gamepadconnected', start);
-window.addEventListener('gamepaddisconnected', stop);
-window.addEventListener('beforeunload', stop);
-window.addEventListener('unload', stop);
+new GamepadController();
