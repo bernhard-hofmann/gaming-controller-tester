@@ -4,7 +4,7 @@
   "description": "This is a web app that allows the user to test their connected game controller",
   "main": "index.js",
   "scripts": {
-    "start": "webpack serve --open",
+    "start": "webpack serve --open --watch",
     "build": "webpack"
   },
   "author": "",

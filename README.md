@@ -1,4 +1,4 @@
-# Controller Tester
+# Gaming Controller Tester
 
 A lightweight, browser-based tool for testing and visualizing gamepad inputs. This application helps developers and users test their game controllers by providing real-time visual feedback for button presses, analog stick movements, and controller vibration.
 
@@ -34,7 +34,7 @@ A lightweight, browser-based tool for testing and visualizing gamepad inputs. Th
 ## Usage
 
 1. Connect your controller to your computer via Bluetooth
-2. Open the Controller Tester in your web browser
+2. Open the Gaming Controller Tester in your web browser
 3. The application will automatically detect your controller
 4. Test buttons, analog sticks, and vibration functionality
 5. Visual feedback will be displayed on screen for each input

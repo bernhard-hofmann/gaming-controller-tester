@@ -3,16 +3,30 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Game Controller Tester</title>
+        <title>Gaming Controller Tester</title>
         <link rel="stylesheet" href="assets/styles/styles.css" />
+        <link
+            rel="stylesheet"
+            href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+            integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm"
+            crossorigin="anonymous"
+        />
     </head>
     <body>
-        <h1>Game Controller Tester</h1>
-        <div id="controller-info">
-            <h2 id="controller-name">No controller detected.</h2>
-            <div id="controller-display">Please connect your bluetooth controller!</div>
+        <div class="wrapper">
+            <h1>Gaming Controller Tester</h1>
+            <div class="detecting-screen active" data-detecting-screen>
+                <h2 class="detecting-head">Checking for controller <i class="fas fa-sync detecting-icon"></i></h2>
+                <div class="detecting-message">Please connect your bluetooth controller!</div>
+            </div>
+            <div class="controller-info">
+                <h2 class="controller-name" data-controller-name></h2>
+                <div class="test-buttons" data-test-buttons></div>
+                <br>
+                <div class="test-buttons" data-axis-test-buttons></div>
+            </div>
+            <div class="svg-container" data-svg-container></div>
         </div>
-        <div class="svg-container"></div>
         <script src="app.js"></script>
     </body>
 </html>

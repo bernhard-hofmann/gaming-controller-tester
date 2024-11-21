@@ -1,3 +1,17 @@
+@import url("./animations.css");
+
+:root {
+    --c-primary: rgb(17, 113, 108);
+    --c-primary-faded: rgb(28, 176, 169, 0.2);
+    --c-secondary: #CCC;
+    --c-active: yellow;
+    --c-secondary-text: #333333;
+    --s-grid: 40px;
+    --s-base: 1rem;
+    --border-radius: 5px;
+    --shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -6,14 +20,55 @@ body {
     justify-content: center;
     height: 100vh;
     margin: 0;
+    background-color: var(--c-primary);
+    background-size: var(--s-grid) var(--s-grid);
+    background-image: linear-gradient(to right, var(--c-primary-faded) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--c-primary-faded) 1px, transparent 1px);
+    color: var(--c-secondary);
 }
 
-#controller-info {
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: calc(var(--s-base) * 2);
+}
+
+.detecting-screen {
+    display: none;
+}
+
+.detecting-screen.active {
+    display: block;
+}
+
+.detecting-head {
+    display: flex;
+    align-items: center;
+    gap: var(--s-base);
+}
+
+.detecting-icon {
+    animation: spin 2s infinite linear;
+}
+
+.controller-info {
     text-align: center;
 }
 
-#controller-display {
-    margin-top: 20px;
+.test-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    overflow: hidden;
+    gap: calc(var(--s-base) / 2);
+}
+
+.test-buttons > * {
+    background-color: var(--c-secondary);
+    color: var(--c-secondary-text);
+    box-shadow: var(--shadow);
+    padding: calc(var(--s-base) / 2);
+    border-radius: var(--border-radius);
 }
 
 .controller-button {
@@ -21,32 +76,29 @@ body {
 }
 
 .button-pressed {
-    background-color: yellow;
+    background-color: var(--c-active);
 }
 
-.button.active, .button.active{
-    fill: yellow!important;
+.button.active,
+.button.active {
+    fill: var(--c-active) !important;
 }
 
-/* animations */
-/* vibrate animation */
-@keyframes vibrate {
-    0% {
-        transform: translate(0, 0);
-    }
-    20% {
-        transform: translate(2px, 2px);
-    }
-    40% {
-        transform: translate(-2px, -2px);
-    }
-    60% {
-        transform: translate(2px, 2px);
-    }
-    80% {
-        transform: translate(-2px, -2px);
-    }
-    100% {
-        transform: translate(0, 0);
-    }
+.vibrate-button {
+    display: block;
+    background-color: var(--c-primary);
+    color: var(--c-secondary);
+    padding: calc(var(--s-base) / 2);
+    border: 1px solid var(--c-secondary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--shadow);
+}
+
+.vibrate-button:hover {
+    background-color: var(--c-primary-faded);
+}
+
+.vibrate {
+    animation: vibrate 0.3s linear infinite;
 }
