@@ -4,7 +4,7 @@
     --c-primary: rgb(17, 113, 108);
     --c-primary-faded: rgb(28, 176, 169, 0.2);
     --c-secondary: #CCC;
-    --c-active: yellow;
+    --c-active: #FFD700;
     --c-secondary-text: #333333;
     --s-grid: 40px;
     --s-base: 1rem;
@@ -13,7 +13,7 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Play", Arial, sans-serif;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -100,5 +100,5 @@ body {
 }
 
 .vibrate {
-    animation: vibrate 0.3s linear infinite;
+    animation: vibrate 0.1s linear infinite;
 }
