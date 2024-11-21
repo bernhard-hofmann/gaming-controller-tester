@@ -1,23 +1,39 @@
 {
-  "name": "game-controller-tester",
-  "version": "1.0.0",
-  "description": "This is a web app that allows the user to test their connected game controller",
-  "main": "index.js",
-  "scripts": {
-    "start": "webpack serve --open --watch",
-    "build": "webpack"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "copy-webpack-plugin": "^12.0.2",
-    "css-loader": "^7.1.2",
-    "html-webpack-plugin": "^5.6.0",
-    "style-loader": "^4.0.0",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.5",
-    "webpack": "^5.91.0",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.4"
-  }
+    "name": "game-controller-tester",
+    "version": "1.0.0",
+    "description": "This is a web app that allows the user to test their connected game controller",
+    "scripts": {
+        "start": "webpack serve --open --watch",
+        "build": "webpack"
+    },
+    "keywords": [
+        "game",
+        "controller",
+        "tester",
+        "web",
+        "gaming"
+    ],
+    "author": {
+        "name": "Pantelis Manikas",
+        "email": "hello@pantelismanikas.com",
+        "url": "https://pantelismanikas.com",
+        "github": "https://github.com/pmanikas",
+        "linkedin": "https://www.linkedin.com/in/pmanikas"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:pmanikas/gaming-controller-tester.git"
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "copy-webpack-plugin": "^12.0.2",
+        "css-loader": "^7.1.2",
+        "html-webpack-plugin": "^5.6.0",
+        "style-loader": "^4.0.0",
+        "ts-loader": "^9.5.1",
+        "typescript": "^5.4.5",
+        "webpack": "^5.91.0",
+        "webpack-cli": "^5.1.4",
+        "webpack-dev-server": "^5.0.4"
+    }
 }
