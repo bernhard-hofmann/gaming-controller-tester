@@ -15,10 +15,10 @@ A lightweight, browser-based tool for testing and visualizing gamepad inputs. Th
 
 | Controller | Status | Button Support | Analog Support | Vibration |
 |------------|--------|----------------|----------------|-----------|
-| Xbox Controller | ✅ Full | All Buttons | Both Sticks | Yes |
-| PS3 Controller | ✅ Full | All Buttons | Both Sticks | Yes |
+| Xbox Controller | 🟧 Partial | All Buttons | Both Sticks | Yes |
+| PS3 Controller | 🟧 Partial | All Buttons | Both Sticks | Yes |
 | PS4 Controller | ✅ Full | All Buttons | Both Sticks | Yes |
-| PS5 DualSense | ✅ Full | All Buttons | Both Sticks | Yes |
+| PS5 DualSense | 🟧 Partial | All Buttons | Both Sticks | Yes |
 | Nintendo Joy-Con (L) | ✅ Full | All Buttons | Left Stick | Yes |
 | Nintendo Joy-Con (R) | ✅ Full | All Buttons | Right Stick | Yes |
 | Nintendo Joy-Con Pair | ✅ Full | All Buttons | Both Sticks | Yes |
