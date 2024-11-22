@@ -86,10 +86,12 @@ body {
 
 .vibrate-button {
     display: block;
+    height: 40px;
     background-color: var(--c-primary);
     color: var(--c-secondary);
     padding: calc(var(--s-base) / 2);
     border: 1px solid var(--c-secondary);
+    border-bottom-width: 3px;
     border-radius: var(--border-radius);
     cursor: pointer;
     box-shadow: 0 0 10px var(--shadow);
@@ -97,6 +99,11 @@ body {
 
 .vibrate-button:hover {
     background-color: var(--c-primary-faded);
+}
+
+.vibrate-button:active, .vibrate-button.active {
+    border-bottom-width: 1px;
+    transform: scaleY(0.95)
 }
 
 .vibrate {

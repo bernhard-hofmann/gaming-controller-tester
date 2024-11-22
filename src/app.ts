@@ -180,6 +180,10 @@ class GamepadController {
         requestAnimationFrame(this.gameLoop.bind(this));
     }
 
+    private vibrateOnVKeyPress(event: KeyboardEvent): void {
+        if (event.key === "v")  this.vibrate();
+    }
+
     private initializeVibration(gamepad: Gamepad): void {
         if (!gamepad.vibrationActuator) return;
 
@@ -190,10 +194,11 @@ class GamepadController {
 
         Object.assign(vibrateButton, {
             className: "vibrate-button",
-            textContent: "Vibrate"
+            textContent: "Vibrate (V)"
         });
 
         vibrateButton.addEventListener("click", () => this.vibrate(GamepadController.DEFAULT_VIBRATION_DURATION));
+        document.addEventListener("keyup", (event) => this.vibrateOnVKeyPress(event));
 
         document.body.appendChild(vibrateButton);
         this.vibrate(GamepadController.DEFAULT_VIBRATION_DURATION);
@@ -224,6 +229,7 @@ class GamepadController {
         this.elements.svgContainer.innerHTML = "";
         this.elements.detectingScreen.classList.add("active");
         document.querySelector(".vibrate-button")?.remove();
+        document.removeEventListener("keyup", (event) => this.vibrateOnVKeyPress(event));
     }
 }
 
